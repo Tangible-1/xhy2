@@ -18,6 +18,8 @@
 2026.7.11
     ACK 帧日志级别从 debug 提升为 info，便于观察完整交互过程
     优化 process_buffer 同步策略：帧尾不匹配时跳过假帧头，减少无效逐字节同步
+2026.7.24
+    原始传感器报文按 sensor_raw 子目录保存，避免与其他节点数据混存。
 """
 
 import json
@@ -71,6 +73,7 @@ class SensorDriverV2:
         self.pub = rospy.Publisher('/sensor_status', SensorStatus, queue_size=10)
         self.raw_saving_enable = rospy.get_param('~save_raw_data', False)
         self.raw_save_dir = os.path.expanduser(rospy.get_param('~raw_save_dir', '~/.ros/auv_logs'))
+        self.raw_save_subdir = 'sensor_raw'
         self.raw_save_file_name = rospy.get_param('~raw_save_file', '')
         self.raw_flush_every = max(1, int(rospy.get_param('~raw_flush_every', 1)))
         self.raw_write_count = 0
@@ -109,8 +112,9 @@ class SensorDriverV2:
         if not self.raw_save_file_name:
             self.raw_save_file_name = datetime.now().strftime('sensor_raw_%Y%m%d_%H%M%S.jsonl')
 
-        os.makedirs(self.raw_save_dir, exist_ok=True)
-        path = os.path.join(self.raw_save_dir, self.raw_save_file_name)
+        save_dir = os.path.join(self.raw_save_dir, self.raw_save_subdir)
+        os.makedirs(save_dir, exist_ok=True)
+        path = os.path.join(save_dir, self.raw_save_file_name)
         self.raw_save_file = open(path, 'a', encoding='utf-8')
         rospy.loginfo(f"sensor_driver_v2: 原始报文将保存到 {path}")
 

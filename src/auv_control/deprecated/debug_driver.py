@@ -29,6 +29,8 @@
 2026.7.13
     调整至 driver 目录，归入硬件驱动层
     上行 AUV 状态话题调整为 /status/auv。
+2026.7.24
+    原始调试报文按 debug_raw 子目录保存，避免与其他节点数据混存。
 """
 
 import json
@@ -107,6 +109,7 @@ class DebugDriver(object):
 
         self.raw_saving_enable = rospy.get_param("~save_raw_data", False)
         self.raw_save_dir = os.path.expanduser(rospy.get_param("~raw_save_dir", "~/.ros/auv_logs"))
+        self.raw_save_subdir = "debug_raw"
         self.raw_save_file_name = rospy.get_param("~raw_save_file", "")
         self.raw_flush_every = max(1, int(rospy.get_param("~raw_flush_every", 1)))
         self.raw_write_count = 0
@@ -138,8 +141,9 @@ class DebugDriver(object):
         if not self.raw_save_file_name:
             self.raw_save_file_name = datetime.now().strftime("debug_raw_%Y%m%d_%H%M%S.jsonl")
 
-        os.makedirs(self.raw_save_dir, exist_ok=True)
-        path = os.path.join(self.raw_save_dir, self.raw_save_file_name)
+        save_dir = os.path.join(self.raw_save_dir, self.raw_save_subdir)
+        os.makedirs(save_dir, exist_ok=True)
+        path = os.path.join(save_dir, self.raw_save_file_name)
         self.raw_save_file = open(path, "a", encoding="utf-8")
         rospy.loginfo(f"debug_driver: 原始报文将保存到 {path}")
 
