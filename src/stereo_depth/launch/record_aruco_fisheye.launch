@@ -51,14 +51,6 @@
           args="
               -o $(arg bag_dir)/$(arg bag_name)
               /fisheye_camera/image_raw
-              /vision/aruco/annotated_image
-              /vision/aruco/image_rect
-              /vision/aruco/detections
-              /vision/aruco/pose
-              /vision/aruco/pose_stamped
-              /vision/aruco/target_message
-              /tf
-              /tf_static
           " />
 
     <!--

@@ -212,11 +212,17 @@ class FisheyeArucoNode:
             "target_output_topic=%s",
             self.target_output_topic,
         )
+        rospy.loginfo(
+            "calibration_width=%d, calibration_height=%d",
+            self.calibration_width,
+            self.calibration_height
+        )
         if not self.enable_pose:
             rospy.logwarn(
                 "Pose disabled: detection and annotated image are available, "
                 "but /aruco/pose will not be published."
             )
+        
 
     def _create_dictionary(self):
         if not hasattr(cv2, "aruco"):
