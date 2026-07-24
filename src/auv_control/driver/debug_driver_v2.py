@@ -22,6 +22,8 @@
     线速度单位为 m/s，角速度由 deg/s 转换为 rad/s。
 2026.7.18
     明确下位机线速度参考点为 IMU/惯导点，frame_id 改为 imu。
+2026.7.24
+    原始调试报文按 debug_v2_raw 子目录保存，避免与其他节点数据混存。
 """
 
 import json
@@ -124,6 +126,7 @@ class DebugDriverV2:
         # 原始报文保存
         self.raw_saving_enable = rospy.get_param("~save_raw_data", False)
         self.raw_save_dir = os.path.expanduser(rospy.get_param("~raw_save_dir", "~/.ros/auv_logs"))
+        self.raw_save_subdir = "debug_v2_raw"
         self.raw_save_file_name = rospy.get_param("~raw_save_file", "")
         self.raw_flush_every = max(1, int(rospy.get_param("~raw_flush_every", 1)))
         self.raw_write_count = 0
@@ -160,8 +163,9 @@ class DebugDriverV2:
         """打开原始报文保存文件"""
         if not self.raw_save_file_name:
             self.raw_save_file_name = datetime.now().strftime("debug_v2_raw_%Y%m%d_%H%M%S.jsonl")
-        os.makedirs(self.raw_save_dir, exist_ok=True)
-        path = os.path.join(self.raw_save_dir, self.raw_save_file_name)
+        save_dir = os.path.join(self.raw_save_dir, self.raw_save_subdir)
+        os.makedirs(save_dir, exist_ok=True)
+        path = os.path.join(save_dir, self.raw_save_file_name)
         self.raw_save_file = open(path, "a", encoding="utf-8")
         rospy.loginfo(f"debug_driver_v2: 原始报文保存到 {path}")
 

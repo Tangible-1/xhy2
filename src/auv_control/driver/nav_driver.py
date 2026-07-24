@@ -17,6 +17,8 @@
     5. 发布完整ROS消息
 2026.7.13
     调整至 driver 目录，归入硬件驱动层
+2026.7.24
+    解析数据和原始报文分别按 nav_data、nav_raw 子目录保存。
 """
 
 import json
@@ -53,12 +55,14 @@ class NavDriver:
         self.pub = rospy.Publisher('/nav', NavData, queue_size=10)
         self.save_data = rospy.get_param('~save_data', False)
         self.save_dir = os.path.expanduser(rospy.get_param('~save_dir', '~/.ros/auv_logs'))
+        self.save_subdir = 'nav_data'
         self.save_file_name = rospy.get_param('~save_file', '')
         self.flush_every = max(1, int(rospy.get_param('~flush_every', 1)))
         self.write_count = 0
         self.save_file = None
         self.raw_saving_enable = rospy.get_param('~save_raw_data', False)
         self.raw_save_dir = os.path.expanduser(rospy.get_param('~raw_save_dir', '~/.ros/auv_logs'))
+        self.raw_save_subdir = 'nav_raw'
         self.raw_save_file_name = rospy.get_param('~raw_save_file', '')
         self.raw_flush_every = max(1, int(rospy.get_param('~raw_flush_every', 1)))
         self.raw_write_count = 0
@@ -76,8 +80,9 @@ class NavDriver:
         if not self.save_file_name:
             self.save_file_name = datetime.now().strftime('nav_data_%Y%m%d_%H%M%S.jsonl')
 
-        os.makedirs(self.save_dir, exist_ok=True)
-        path = os.path.join(self.save_dir, self.save_file_name)
+        save_dir = os.path.join(self.save_dir, self.save_subdir)
+        os.makedirs(save_dir, exist_ok=True)
+        path = os.path.join(save_dir, self.save_file_name)
         self.save_file = open(path, 'a', encoding='utf-8')
         rospy.loginfo(f"nav driver: 数据将保存到 {path}")
 
@@ -85,8 +90,9 @@ class NavDriver:
         if not self.raw_save_file_name:
             self.raw_save_file_name = datetime.now().strftime('nav_raw_%Y%m%d_%H%M%S.jsonl')
 
-        os.makedirs(self.raw_save_dir, exist_ok=True)
-        path = os.path.join(self.raw_save_dir, self.raw_save_file_name)
+        save_dir = os.path.join(self.raw_save_dir, self.raw_save_subdir)
+        os.makedirs(save_dir, exist_ok=True)
+        path = os.path.join(save_dir, self.raw_save_file_name)
         self.raw_save_file = open(path, 'a', encoding='utf-8')
         rospy.loginfo(f"nav driver: 原始报文将保存到 {path}")
 
