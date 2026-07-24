@@ -1,28 +1,26 @@
 <launch>
-    <!-- begin.launch — 调试驱动 V2 测试启动文件 -->
+    <!-- begin.launch — 启动下位机驱动和tf -->
     <!-- 用法: roslaunch auv_control begin.launch -->
+
+    <!-- 启动节点参数 -->
+    <arg name="start_camera" default="true" />
+    <arg name="start_splitter" default="true" />
+    <arg name="start_state_web" default="true" />
+    <arg name="start_fisheye" default="true" />
+    <arg name="start_motion_supervisor" default="false" />
 
     <!-- 包含任务参数 -->
     <!-- <include file="$(find auv_control)/launch/param.launch"/> -->
     <arg name="save_dir" default="$(env HOME)/.ros/auv_logs" />
+    <arg name="motion_supervisor_config_file"  default="$(find auv_control)/config/motion_supervisor.yaml" />
+    <arg name="tf_config_file" default="$(find auv_control)/config/auv_tf.yaml" />
 
     <!-- 下位机ip -->
     <arg name="vehicle_ip" default="192.168.1.115" />
 
-    <!-- 启动节点参数 -->
-    <arg name="start_camera" default="false" />
-    <arg name="start_splitter" default="false" />
-    <arg name="start_state_web" default="true" />
-    <arg name="start_fisheye" default="false" />
-    <arg name="start_motion_supervisor" default="false" />
-
-
-    <arg name="motion_supervisor_config_file"
-         default="$(find auv_control)/config/motion_supervisor.yaml" />
-    <arg name="tf_config_file"
-         default="$(find auv_control)/config/auv_tf.yaml" />
     <!-- debug_driver_v2 向下位机发送完整控制帧的频率，单位 Hz。 -->
     <arg name="debug_send_rate_hz" default="20.0" />
+    
     <!-- web 参数 -->    
     <arg name="state_web_host" default="0.0.0.0" />
     <arg name="state_web_port" default="8088" />
